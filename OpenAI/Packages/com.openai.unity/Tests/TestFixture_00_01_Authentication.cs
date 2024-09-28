@@ -14,7 +14,7 @@ namespace OpenAI.Tests
         [SetUp]
         public void Setup()
         {
-            var authJson = new OpenAIAuthInfo("sk-test12", "org-testOrg");
+            var authJson = new OpenAIAuthInfo("sk-test12", "org-testOrg", "proj_testProject");
             var authText = JsonUtility.ToJson(authJson, true);
             File.WriteAllText(OpenAIAuthentication.CONFIG_FILE, authText);
         }
@@ -39,6 +39,8 @@ namespace OpenAI.Tests
             Assert.AreEqual("sk-test12", auth.Info.ApiKey);
             Assert.IsNotNull(auth.Info.OrganizationId);
             Assert.AreEqual("org-testOrg", auth.Info.OrganizationId);
+            Assert.IsNotNull(auth.Info.ProjectId);
+            Assert.AreEqual("proj_testProject", auth.Info.ProjectId);
         }
 
         [Test]
@@ -64,6 +66,7 @@ namespace OpenAI.Tests
                 var instance = ScriptableObject.CreateInstance<OpenAIConfiguration>();
                 instance.ApiKey = "sk-test12";
                 instance.OrganizationId = "org-testOrg";
+                instance.ProjectId = "proj_testProject";
                 AssetDatabase.CreateAsset(instance, configPath);
                 cleanup = true;
             }
@@ -76,6 +79,7 @@ namespace OpenAI.Tests
             Assert.IsNotEmpty(auth.Info.ApiKey);
             Assert.AreEqual(auth.Info.ApiKey, configuration.ApiKey);
             Assert.AreEqual(auth.Info.OrganizationId, configuration.OrganizationId);
+            Assert.AreEqual(auth.Info.ProjectId, configuration.ProjectId);
 
             if (cleanup)
             {
@@ -184,6 +188,7 @@ namespace OpenAI.Tests
             var api = new OpenAIClient(auth, settings);
             Debug.Log(api.Settings.Info.BaseRequest);
             Debug.Log(api.Settings.Info.BaseRequestUrlFormat);
+            Assert.AreEqual("https://test-resource.openai.azure.com/openai/{0}", api.Settings.Info.BaseRequestUrlFormat);
         }
 
         [Test]
@@ -194,6 +199,7 @@ namespace OpenAI.Tests
             var api = new OpenAIClient(auth, settings);
             Debug.Log(api.Settings.Info.BaseRequest);
             Debug.Log(api.Settings.Info.BaseRequestUrlFormat);
+            Assert.AreEqual("https://api.your-custom-domain.com/v1/{0}", api.Settings.Info.BaseRequestUrlFormat);
         }
 
         [TearDown]
@@ -205,7 +211,7 @@ namespace OpenAI.Tests
             }
 
             Assert.IsFalse(File.Exists(OpenAIAuthentication.CONFIG_FILE));
-            
+
             OpenAIAuthentication.Default = null;
             OpenAISettings.Default = null;
         }
