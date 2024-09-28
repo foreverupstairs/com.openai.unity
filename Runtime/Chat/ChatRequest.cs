@@ -1,6 +1,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using Newtonsoft.Json;
+using OpenAI.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,12 +30,15 @@ namespace OpenAI.Chat
             double? temperature = null,
             double? topP = null,
             int? topLogProbs = null,
+            bool? parallelToolCalls = null,
+            JsonSchema jsonSchema = null,
             string user = null)
-            : this(messages, model, frequencyPenalty, logitBias, maxTokens, number, presencePenalty, responseFormat, seed, stops, temperature, topP, topLogProbs, user)
+            : this(messages, model, frequencyPenalty, logitBias, maxTokens, number, presencePenalty,
+                responseFormat, seed, stops, temperature, topP, topLogProbs, parallelToolCalls, jsonSchema, user)
         {
             var toolList = tools?.ToList();
 
-            if (toolList != null && toolList.Any())
+            if (toolList is { Count: > 0 })
             {
                 if (string.IsNullOrWhiteSpace(toolChoice))
                 {
@@ -43,6 +47,7 @@ namespace OpenAI.Chat
                 else
                 {
                     if (!toolChoice.Equals("none") &&
+                        !toolChoice.Equals("required") &&
                         !toolChoice.Equals("auto"))
                     {
                         var tool = toolList.FirstOrDefault(t => t.Function.Name.Contains(toolChoice)) ??
@@ -52,6 +57,15 @@ namespace OpenAI.Chat
                     else
                     {
                         ToolChoice = toolChoice;
+                    }
+                }
+
+                foreach (var tool in toolList)
+                {
+                    if (tool?.Function?.Arguments != null)
+                    {
+                        // just in case clear any lingering func args.
+                        tool.Function.Arguments = null;
                     }
                 }
             }
@@ -102,7 +116,7 @@ namespace OpenAI.Chat
         /// </param>
         /// <param name="responseFormat">
         /// An object specifying the format that the model must output.
-        /// Setting to <see cref="ChatResponseFormat.Json"/> enables JSON mode,
+        /// Setting to <see cref="ChatResponseFormat.Json"/> or <see cref="ChatResponseFormat.JsonSchema"/> enables JSON mode,
         /// which guarantees the message the model generates is valid JSON.
         /// </param>
         /// <param name="frequencyPenalty">
@@ -124,6 +138,12 @@ namespace OpenAI.Chat
         /// An integer between 0 and 5 specifying the number of most likely tokens to return at each token position,
         /// each with an associated log probability.
         /// </param>
+        /// <param name="jsonSchema">
+        /// The <see cref="JsonSchema"/> to use for structured JSON outputs.<br/>
+        /// <see href="https://platform.openai.com/docs/guides/structured-outputs"/><br/>
+        /// <see href="https://json-schema.org/overview/what-is-jsonschema"/>
+        /// </param>
+        /// <param name="parallelToolCalls">Whether to enable parallel function calling during tool use.</param>
         /// <param name="user">
         /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
         /// </param>
@@ -142,6 +162,8 @@ namespace OpenAI.Chat
             double? temperature = null,
             double? topP = null,
             int? topLogProbs = null,
+            bool? parallelToolCalls = null,
+            JsonSchema jsonSchema = null,
             string user = null)
         {
             Messages = messages?.ToList();
@@ -151,19 +173,29 @@ namespace OpenAI.Chat
                 throw new ArgumentNullException(nameof(messages), $"Missing required {nameof(messages)} parameter");
             }
 
-            Model = string.IsNullOrWhiteSpace(model) ? Models.Model.GPT3_5_Turbo : model;
+            Model = string.IsNullOrWhiteSpace(model) ? Models.Model.GPT4o : model;
             FrequencyPenalty = frequencyPenalty;
             LogitBias = logitBias;
             MaxTokens = maxTokens;
             Number = number;
             PresencePenalty = presencePenalty;
-            ResponseFormat = ChatResponseFormat.Json == responseFormat ? responseFormat : null;
+
+            if (jsonSchema != null)
+            {
+                ResponseFormatObject = jsonSchema;
+            }
+            else
+            {
+                ResponseFormatObject = responseFormat;
+            }
+
             Seed = seed;
             Stops = stops;
             Temperature = temperature;
             TopP = topP;
             LogProbs = topLogProbs.HasValue ? topLogProbs.Value > 0 : null;
             TopLogProbs = topLogProbs;
+            ParallelToolCalls = parallelToolCalls;
             User = user;
         }
 
@@ -254,19 +286,22 @@ namespace OpenAI.Chat
 
         /// <summary>
         /// An object specifying the format that the model must output.
-        /// Setting to <see cref="ChatResponseFormat.Json"/> enables JSON mode,
+        /// Setting to <see cref="ChatResponseFormat.Json"/> or <see cref="ChatResponseFormat.JsonSchema"/> enables JSON mode,
         /// which guarantees the message the model generates is valid JSON.
         /// </summary>
         /// <remarks>
-        /// Important: When using JSON mode you must still instruct the model to produce JSON yourself via some conversation message,
-        /// for example via your system message. If you don't do this, the model may generate an unending stream of
-        /// whitespace until the generation reaches the token limit, which may take a lot of time and give the appearance
-        /// of a "stuck" request. Also note that the message content may be partial (i.e. cut off) if finish_reason="length",
+        /// Important: When using JSON mode, you must also instruct the model to produce JSON yourself via a system or user message.
+        /// Without this, the model may generate an unending stream of whitespace until the generation reaches the token limit,
+        /// resulting in a long-running and seemingly "stuck" request. Also note that the message content may be partially cut off if finish_reason="length",
         /// which indicates the generation exceeded max_tokens or the conversation exceeded the max context length.
         /// </remarks>
         [Preserve]
         [JsonProperty("response_format")]
-        public ResponseFormat ResponseFormat { get; }
+        [JsonConverter(typeof(ResponseFormatConverter))]
+        public ResponseFormatObject ResponseFormatObject { get; internal set; }
+
+        [JsonIgnore]
+        public ChatResponseFormat ResponseFormat => ResponseFormatObject ?? ChatResponseFormat.Auto;
 
         /// <summary>
         /// This feature is in Beta. If specified, our system will make a best effort to sample deterministically,
@@ -293,6 +328,10 @@ namespace OpenAI.Chat
         [Preserve]
         [JsonProperty("stream")]
         public bool Stream { get; internal set; }
+
+        [Preserve]
+        [JsonProperty("stream_options")]
+        public StreamOptions StreamOptions { get; internal set; }
 
         /// <summary>
         /// What sampling temperature to use, between 0 and 2.
@@ -336,6 +375,13 @@ namespace OpenAI.Chat
         [Preserve]
         [JsonProperty("tool_choice")]
         public object ToolChoice { get; }
+
+        /// <summary>
+        /// Whether to enable parallel function calling during tool use.
+        /// </summary>
+        [Preserve]
+        [JsonProperty("parallel_tool_calls")]
+        public bool? ParallelToolCalls { get; }
 
         /// <summary>
         /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
