@@ -183,18 +183,12 @@ namespace OpenAI.Audio
                     payload.AddField("language", request.Language);
                 }
 
-            switch (request.TimestampGranularities)
-            {
-                case TimestampGranularity.Segment:
-                case TimestampGranularity.Word:
-                    form.AddField("timestamp_granularities[]", request.TimestampGranularities.ToString().ToLower());
-                    form.AddField("timestamp_granularities[]", "segment");
-                    break;
                 switch (request.TimestampGranularities)
                 {
                     case TimestampGranularity.Segment:
                     case TimestampGranularity.Word:
                         payload.AddField("timestamp_granularities[]", request.TimestampGranularities.ToString().ToLower());
+                        payload.AddField("timestamp_granularities[]", "segment");
                         break;
                 }
             }
