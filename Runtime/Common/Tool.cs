@@ -474,147 +474,147 @@ namespace OpenAI
 
         #region Func<,> Overloads
 
-        public static Tool FromFunc<TResult>(string name, Func<TResult> function, string description = null)
+        public static Tool FromFunc<TResult>(string name, Func<TResult> function, string description = null, bool? strict = null)
         {
             if (TryGetTool(name, function, out var tool))
             {
                 return tool;
             }
 
-            tool = new Tool(Function.FromFunc(name, function, description));
+            tool = new Tool(Function.FromFunc(name, function, description, strict));
             toolCache.Add(tool);
             return tool;
         }
 
-        public static Tool FromFunc<T1, TResult>(string name, Func<T1, TResult> function, string description = null)
+        public static Tool FromFunc<T1, TResult>(string name, Func<T1, TResult> function, string description = null, bool? strict = null)
         {
             if (TryGetTool(name, function, out var tool))
             {
                 return tool;
             }
 
-            tool = new Tool(Function.FromFunc(name, function, description));
+            tool = new Tool(Function.FromFunc(name, function, description, strict));
             toolCache.Add(tool);
             return tool;
         }
 
-        public static Tool FromFunc<T1, T2, TResult>(string name, Func<T1, T2, TResult> function, string description = null)
+        public static Tool FromFunc<T1, T2, TResult>(string name, Func<T1, T2, TResult> function, string description = null, bool? strict = null)
         {
             if (TryGetTool(name, function, out var tool))
             {
                 return tool;
             }
 
-            tool = new Tool(Function.FromFunc(name, function, description));
+            tool = new Tool(Function.FromFunc(name, function, description, strict));
             toolCache.Add(tool);
             return tool;
         }
 
-        public static Tool FromFunc<T1, T2, T3, TResult>(string name, Func<T1, T2, T3, TResult> function, string description = null)
+        public static Tool FromFunc<T1, T2, T3, TResult>(string name, Func<T1, T2, T3, TResult> function, string description = null, bool? strict = null)
         {
             if (TryGetTool(name, function, out var tool))
             {
                 return tool;
             }
 
-            tool = new Tool(Function.FromFunc(name, function, description));
+            tool = new Tool(Function.FromFunc(name, function, description, strict));
             toolCache.Add(tool);
             return tool;
         }
 
-        public static Tool FromFunc<T1, T2, T3, T4, TResult>(string name, Func<T1, T2, T3, T4, TResult> function, string description = null)
+        public static Tool FromFunc<T1, T2, T3, T4, TResult>(string name, Func<T1, T2, T3, T4, TResult> function, string description = null, bool? strict = null)
         {
             if (TryGetTool(name, function, out var tool))
             {
                 return tool;
             }
 
-            tool = new Tool(Function.FromFunc(name, function, description));
+            tool = new Tool(Function.FromFunc(name, function, description, strict));
             toolCache.Add(tool);
             return tool;
         }
 
-        public static Tool FromFunc<T1, T2, T3, T4, T5, TResult>(string name, Func<T1, T2, T3, T4, T5, TResult> function, string description = null)
+        public static Tool FromFunc<T1, T2, T3, T4, T5, TResult>(string name, Func<T1, T2, T3, T4, T5, TResult> function, string description = null, bool? strict = null)
         {
             if (TryGetTool(name, function, out var tool))
             {
                 return tool;
             }
 
-            tool = new Tool(Function.FromFunc(name, function, description));
+            tool = new Tool(Function.FromFunc(name, function, description, strict));
             toolCache.Add(tool);
             return tool;
         }
 
-        public static Tool FromFunc<T1, T2, T3, T4, T5, T6, TResult>(string name, Func<T1, T2, T3, T4, T5, T6, TResult> function, string description = null)
+        public static Tool FromFunc<T1, T2, T3, T4, T5, T6, TResult>(string name, Func<T1, T2, T3, T4, T5, T6, TResult> function, string description = null, bool? strict = null)
         {
             if (TryGetTool(name, function, out var tool))
             {
                 return tool;
             }
 
-            tool = new Tool(Function.FromFunc(name, function, description));
+            tool = new Tool(Function.FromFunc(name, function, description, strict));
             toolCache.Add(tool);
             return tool;
         }
 
-        public static Tool FromFunc<T1, T2, T3, T4, T5, T6, T7, TResult>(string name, Func<T1, T2, T3, T4, T5, T6, T7, TResult> function, string description = null)
+        public static Tool FromFunc<T1, T2, T3, T4, T5, T6, T7, TResult>(string name, Func<T1, T2, T3, T4, T5, T6, T7, TResult> function, string description = null, bool? strict = null)
         {
             if (TryGetTool(name, function, out var tool))
             {
                 return tool;
             }
 
-            tool = new Tool(Function.FromFunc(name, function, description));
+            tool = new Tool(Function.FromFunc(name, function, description, strict));
             toolCache.Add(tool);
             return tool;
         }
 
-        public static Tool FromFunc<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(string name, Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> function, string description = null)
+        public static Tool FromFunc<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(string name, Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult> function, string description = null, bool? strict = null)
         {
             if (TryGetTool(name, function, out var tool))
             {
                 return tool;
             }
 
-            tool = new Tool(Function.FromFunc(name, function, description));
+            tool = new Tool(Function.FromFunc(name, function, description, strict));
             toolCache.Add(tool);
             return tool;
         }
 
-        public static Tool FromFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(string name, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> function, string description = null)
+        public static Tool FromFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(string name, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult> function, string description = null, bool? strict = null)
         {
             if (TryGetTool(name, function, out var tool))
             {
                 return tool;
             }
 
-            tool = new Tool(Function.FromFunc(name, function, description));
+            tool = new Tool(Function.FromFunc(name, function, description, strict));
             toolCache.Add(tool);
             return tool;
         }
 
-        public static Tool FromFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(string name, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> function, string description = null)
+        public static Tool FromFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(string name, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> function, string description = null, bool? strict = null)
         {
             if (TryGetTool(name, function, out var tool))
             {
                 return tool;
             }
 
-            tool = new Tool(Function.FromFunc(name, function, description));
+            tool = new Tool(Function.FromFunc(name, function, description, strict));
             toolCache.Add(tool);
             return tool;
         }
 
 
-        public static Tool FromFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>(string name, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult> function, string description = null)
+        public static Tool FromFunc<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>(string name, Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult> function, string description = null, bool? strict = null)
         {
             if (TryGetTool(name, function, out var tool))
             {
                 return tool;
             }
 
-            tool = new Tool(Function.FromFunc(name, function, description));
+            tool = new Tool(Function.FromFunc(name, function, description, strict));
             toolCache.Add(tool);
             return tool;
         }
